@@ -5,8 +5,16 @@ import hvplot.xarray
 import panel as pn
 
 
+# sst_ds = xr.open_zarr(
+#     "data/raw/sst/c3s_sst_2015_2024_005deg.zarr"
+# )
+
+# sst_ds = xr.open_zarr(
+#     "data/processed/sst_test_30days_025deg.zarr"
+# )
+
 sst_ds = xr.open_zarr(
-    "./data/raw/sst/c3s_sst_2015_2024_005deg.zarr"
+    "data/processed/sst_2015_2024_025deg.zarr"
 )
 
 sst = sst_ds["analysed_sst"]
