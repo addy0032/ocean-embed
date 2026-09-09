@@ -7,6 +7,10 @@ import xesmf as xe
 from dask.distributed import Client, performance_report, wait
 
 
+# the wind regridding script works better if file was read in chunks as it was (very large time axis chunks) and 
+# then the chunks where rechunked in the output_chunks parameter of the regridder. 
+# (took a total of 9 minutes as compared to the 240 time chunking and not using output_chunks parameter)
+
 # ============================================================
 # Main
 # ============================================================
@@ -19,7 +23,7 @@ def main():
 
     print("Starting Dask client...")
 
-    client = Client(n_workers=2, threads_per_worker=8)
+    client = Client(n_workers=1, threads_per_worker=10)
 
     print(client)
     print("Dashboard:", client.dashboard_link)
@@ -66,9 +70,9 @@ def main():
     # ========================================================
 
     # The first operation is hourly -> daily resampling.
-    # A 30-day time chunk is a reasonable starting point for this.
+    # A 10-day time chunk is a reasonable starting point for this.
     INPUT_CHUNKS = {
-        "time": 336,
+        "time": 240,
         "latitude": -1,
         "longitude": -1,
     }
@@ -84,7 +88,7 @@ def main():
 
     wind_ds = xr.open_zarr(
         WIND_PATH,
-        chunks=INPUT_CHUNKS,
+        # chunks=INPUT_CHUNKS,
     )
     wind_ds = wind_ds.sel(time=slice("2015-01-01", "2024-12-31 23:00:00"))
 
@@ -129,13 +133,13 @@ def main():
     with performance_report(filename=DAILY_REPORT_PATH):
 
         # Mean U and V independently.
-        u_daily = u.resample(time="1D").mean(skipna=True)
-        v_daily = v.resample(time="1D").mean(skipna=True)
+        u_daily = u.coarsen(time=24, boundary="exact").mean(skipna=True)
+        v_daily = v.coarsen(time=24, boundary="exact").mean(skipna=True)
 
-        # Force actual computation now, once, and keep results in distributed memory
-        u_daily = u_daily.persist()
-        v_daily = v_daily.persist()
-        wait([u_daily, v_daily])
+        # # Force actual computation now, once, and keep results in distributed memory
+        # u_daily = u_daily.persist()
+        # v_daily = v_daily.persist()
+        # wait([u_daily, v_daily])
 
     print("\nDaily eastward wind:")
     print(u_daily)
@@ -287,6 +291,11 @@ def main():
             keep_attrs=True,
             skipna=True,
             na_thres=0.50,
+            output_chunks={
+            "time": 1,
+            "latitude": -1,
+            "longitude": -1,
+            }
         )
 
         print("\nRegridding northward wind...")
@@ -296,6 +305,11 @@ def main():
             keep_attrs=True,
             skipna=True,
             na_thres=0.50,
+            output_chunks={
+            "time": 1,
+            "latitude": -1,
+            "longitude": -1,
+            }
         )
 
 
@@ -341,7 +355,7 @@ def main():
             )
 
             wind_component.attrs["missing_value_handling"] = (
-                "daily minimum-valid-hours filtering followed by "
+                "skipna=True during daily averaging; "
                 "conservative_normed regridding with "
                 "skipna=True and na_thres=0.50"
             )
