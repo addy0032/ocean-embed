@@ -41,10 +41,7 @@ OUTPUT_CHUNKS = {
     "longitude": -1,
 }
 
-
-# ============================================================
 # Grid helpers
-# ============================================================
 
 def cell_bounds(values):
     values = np.asarray(values, dtype=np.float64)
@@ -93,8 +90,7 @@ def create_depth_masks(thetao, source_depths):
             mask = source_valid.isel(depth=source_index)
         else:
             deeper_index = np.searchsorted(source_depths.values, target_depth, side="left")
-            shallower_index = deeper_index - 1
-
+            
             if deeper_index >= len(source_depths):
                 mask = xr.zeros_like(source_valid.isel(depth=0), dtype=bool)
             else:
@@ -104,10 +100,7 @@ def create_depth_masks(thetao, source_depths):
 
     return masks
 
-
-# ============================================================
 # PCHIP
-# ============================================================
 
 def pchip_block(values, source_depths, target_depths):
     n_time, n_lat, n_lon, n_depth = values.shape
@@ -158,10 +151,7 @@ def interpolate_vertical_pchip(thetao, source_depths):
 
     return result.rename({"target_depth": "depth"}).assign_coords(depth=TARGET_DEPTHS).transpose("time", "depth", "latitude", "longitude")
 
-
-# ============================================================
 # Main
-# ============================================================
 
 def main():
 
@@ -261,9 +251,7 @@ def main():
             depth_masks = create_depth_masks(thetao, source_depths)
             print("Depth-specific source masks created.")
 
-        # ====================================================
         # Vertical interpolation
-        # ====================================================
 
         print("\n" + "-" * 70)
         print("VERTICAL PCHIP")
@@ -289,9 +277,7 @@ def main():
         print("\nChunks:")
         print(thetao_15.chunks)
 
-        # ====================================================
         # Horizontal regridding, depth by depth
-        # ====================================================
 
         depth_results = []
 
@@ -357,19 +343,13 @@ def main():
                     },
                 )
 
-            thetao_depth_025 = thetao_depth_025.astype(
-                np.float32
-            )
+            thetao_depth_025 = thetao_depth_025.astype(np.float32)
 
-            depth_results.append(
-                thetao_depth_025
-            )
+            depth_results.append(thetao_depth_025)
 
             print("\nCompleted depth:", target_depth)
 
-        # ====================================================
         # Combine depths
-        # ====================================================
 
         print("\n" + "-" * 70)
         print("COMBINING DEPTHS")
@@ -381,22 +361,15 @@ def main():
                 TARGET_DEPTHS,
                 dims="depth",
                 name="depth",
-            ),
-        ).transpose("time", "depth", "latitude", "longitude")
+            )).transpose("time", "depth", "latitude", "longitude")
 
         thetao_025.name = "thetao"
 
-        # ====================================================
         # Final depth-dependent mask
-        # ====================================================
 
         print("\nCreating target depth mask...")
 
-        target_mask = thetao_025.isel(
-            time=0
-        ).notnull().astype(
-            np.uint8
-        )
+        target_mask = thetao_025.isel(time=0).notnull().astype(np.uint8)
 
         target_mask.name = "depth_valid_mask"
 
@@ -404,9 +377,7 @@ def main():
             target_mask == 1
         )
 
-        # ====================================================
         # Metadata
-        # ====================================================
 
         thetao_025.attrs.update({
             "long_name": "Sea water potential temperature",
@@ -431,9 +402,7 @@ def main():
             "land or insufficient bathymetric depth.",
         })
 
-        # ====================================================
         # Dataset
-        # ====================================================
 
         if first_year:
 
@@ -458,9 +427,7 @@ def main():
                 "thetao": thetao_025,
             })
 
-        # ====================================================
         # Final chunking
-        # ====================================================
 
         year_ds = year_ds.chunk(OUTPUT_CHUNKS)
 
@@ -473,9 +440,7 @@ def main():
         print("\nThetao chunks:")
         print(year_ds["thetao"].chunks)
 
-        # ====================================================
         # Write
-        # ====================================================
 
         if first_year:
 
@@ -511,9 +476,7 @@ def main():
         del target_mask
         del year_ds
 
-    # ========================================================
     # Final inspection
-    # ========================================================
 
     print("\n" + "=" * 70)
     print("FINAL GLORYS DATASET")
