@@ -40,3 +40,17 @@ ALIGNED_DIR = "data/processed/aligned"
 # trigger expensive rechunking.
 FINAL_CHUNKS = {"time": 1, "latitude": -1, "longitude": -1}
 FINAL_CHUNKS_TARGET = {"time": 1, "depth": -1, "latitude": -1, "longitude": -1}
+
+
+# ML CONFIGURATION
+
+TIME_WINDOW = 7
+
+TRAIN_START = "2015-01-01"
+TRAIN_END   = "2021-12-31"
+
+VAL_START = "2022-01-01"
+VAL_END   = "2022-12-31"
+
+TEST_START = "2023-01-01"
+TEST_END   = "2024-12-31"
