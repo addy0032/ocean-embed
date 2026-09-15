@@ -20,6 +20,7 @@ Model output:
 """
 
 from pathlib import Path
+import time
 
 import torch
 from torch.optim import AdamW
@@ -201,19 +202,10 @@ def save_checkpoint(
     Save a complete training checkpoint.
     """
 
-    # If model is torch.compile()'d, save the original
-    # model's state_dict so the checkpoint remains compatible
-    # with the normal TemporalUNet model.
-    checkpoint_model = getattr(
-        model,
-        "_orig_mod",
-        model,
-    )
-
     torch.save(
         {
             "epoch": epoch,
-            "model_state_dict": checkpoint_model.state_dict(),
+            "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
             "scheduler_state_dict": scheduler.state_dict(),
             "train_loss": train_loss,
@@ -296,10 +288,6 @@ def main():
 
     print(f"Trainable parameters: {num_parameters:,}")
 
-    # Compile model for faster training
-    if device.type == "cuda":
-        model = torch.compile(model, mode="reduce-overhead",)
-
     # ========================================================
     # Loss
     # ========================================================
@@ -348,6 +336,9 @@ def main():
 
     for epoch in range(1, NUM_EPOCHS + 1):
 
+        epoch_start = time.perf_counter()
+        train_start = time.perf_counter()
+        
         train_loss = train_one_epoch(
             model=model,
             loader=train_loader,
@@ -358,6 +349,9 @@ def main():
             use_amp=USE_AMP and device.type == "cuda",
         )
 
+        train_time = time.perf_counter() - train_start
+        val_start = time.perf_counter()
+
         val_loss = validate_one_epoch(
             model=model,
             loader=val_loader,
@@ -365,6 +359,9 @@ def main():
             device=device,
             use_amp=USE_AMP and device.type == "cuda",
         )
+
+        val_time = time.perf_counter() - val_start
+        epoch_time = time.perf_counter() - epoch_start
 
         scheduler.step(val_loss)
 
@@ -409,7 +406,10 @@ def main():
             f"Epoch {epoch:03d}/{NUM_EPOCHS:03d} | "
             f"Train: {train_loss:.6f} | "
             f"Val: {val_loss:.6f} | "
-            f"LR: {current_lr:.2e}"
+            f"LR: {current_lr:.2e} | "
+            f"TrainTime: {train_time:.1f}s | "
+            f"ValTime: {val_time:.1f}s | "
+            f"Total: {epoch_time:.1f}s"
             f"{best_marker}"
         )
 
