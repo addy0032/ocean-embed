@@ -27,4 +27,4 @@ Thumbs.db
 # Rough files
 rough*
 
-predictions.zarr
+evaluation/predictions.zarr/
