@@ -26,3 +26,5 @@ Thumbs.db
 
 # Rough files
 rough*
+
+predictions.zarr
