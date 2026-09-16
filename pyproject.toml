@@ -7,6 +7,7 @@ dependencies = [
     "copernicusmarine>=2.4.1",
     "dask>=2026.8.0",
     "distributed>=2026.8.0",
+    "fastapi>=0.141.1",
     "geoviews>=1.15.1",
     "holoviews>=1.23.2",
     "hvplot>=0.12.2",
@@ -20,6 +21,7 @@ dependencies = [
     "torch>=2.14.0",
     "torchaudio>=2.11.0",
     "torchvision>=0.29.0",
+    "uvicorn>=0.53.0",
     "xarray>=2026.7.0",
     "xesmf>=0.9.2",
     "zarr>=3.3.0",
@@ -33,3 +35,4 @@ torchaudio = { index = "pytorch" }
 [[tool.uv.index]]
 name = "pytorch"
 url = "https://download.pytorch.org/whl/cu130"
+explicit = true

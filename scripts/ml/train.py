@@ -35,7 +35,7 @@ from scripts.ml.models.temporal_unet import TemporalUNet
 # Configuration
 # ============================================================
 
-BATCH_SIZE = 16
+BATCH_SIZE = 32
 NUM_WORKERS = 8
 
 LEARNING_RATE = 1e-3
