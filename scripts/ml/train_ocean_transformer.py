@@ -55,10 +55,10 @@ from scripts.ml.models.ocean_transformer import OceanTransformer
 #
 # This Transformer is considerably more memory-intensive, so
 # start with a physical batch size of 4.
-BATCH_SIZE = 4
+BATCH_SIZE = 8
 
 # 4 x 8 = effective batch size of 32.
-GRADIENT_ACCUMULATION_STEPS = 8
+GRADIENT_ACCUMULATION_STEPS = 4
 
 NUM_WORKERS = 8
 

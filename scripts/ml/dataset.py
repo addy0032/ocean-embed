@@ -21,6 +21,7 @@ Example:
 """
 
 from pathlib import Path
+import os
 
 import numpy as np
 import torch
@@ -37,6 +38,18 @@ from config import (
     TEST_START,
     TEST_END,
 )
+
+DATA_ROOT = Path(
+    os.environ.get(
+        "PS66_DATA_ROOT",
+        "data/processed",
+    )
+)
+
+X_PATH = DATA_ROOT / "X_inputs_025deg_t7.zarr"
+Y_PATH = DATA_ROOT / "y_target_025deg.zarr"
+SURFACE_MASK_PATH = DATA_ROOT / "surface_mask_025deg.zarr"
+STATS_PATH = DATA_ROOT / "ml" / "training_statistics.npz"
 
 
 X_PATH = "data/processed/X_inputs_025deg_t7.zarr"

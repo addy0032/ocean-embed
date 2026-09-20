@@ -165,7 +165,7 @@ class TemporalAttention(nn.Module):
         # temporal attention is performed independently for every
         # spatial location.
         
-        max_spatial_sequences = 16_000
+        max_spatial_sequences = 32_000
 
         outputs = []
 
