@@ -52,12 +52,6 @@ SURFACE_MASK_PATH = DATA_ROOT / "surface_mask_025deg.zarr"
 STATS_PATH = DATA_ROOT / "ml" / "training_statistics.npz"
 
 
-X_PATH = "data/processed/X_inputs_025deg_t7.zarr"
-Y_PATH = "data/processed/y_target_025deg.zarr"
-SURFACE_MASK_PATH = "data/processed/surface_mask_025deg.zarr"
-STATS_PATH = "data/processed/ml/training_statistics.npz"
-
-
 class OceanDataset(Dataset):
     """
     Dataset for one temporal split.
