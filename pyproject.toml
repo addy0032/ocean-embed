@@ -9,6 +9,7 @@ dependencies = [
     "distributed>=2026.8.0",
     "fastapi>=0.141.1",
     "geoviews>=1.15.1",
+    "gsw>=3.6.23",
     "holoviews>=1.23.2",
     "hvplot>=0.12.2",
     "jupyter-bokeh>=4.1.0",

@@ -141,3 +141,29 @@ http://localhost:5173
 6. **Quantitative Evaluation Metrics**:
    - Displays confirmed test set performance (overall RMSE = 0.7229 °C, Correlation = 0.9956, R² = 0.9913).
    - Dynamic depth-wise metrics card updating with selected depth level.
+
+---
+
+## Independent In-Situ Validation (Argo)
+
+GLORYS is a reanalysis, so on its own the test metrics above only show how closely the model reproduces GLORYS. To check the model against real observations, we also score it against Argo float temperature profiles.
+
+* **Source**: Ifremer ERDDAP (Argo GDAC mirror), dataset `ArgoFloats`
+* **Period**: 2023-06-01 to 2023-12-31. This covers the SW monsoon, the post-monsoon transition and the NE monsoon onset, and falls inside the test period.
+* **Region**: 5°N–30°N, 45°E–105°E, 0–1100 dbar
+* **QC**: only position/time QC = 1 are kept. D/A-mode profiles use the adjusted fields and R-mode profiles use the raw fields, both with QC = 1. Pressure is converted to depth with TEOS-10 (`gsw`), then interpolated onto the 15 model levels, skipping any level where the bracketing measurements are too far apart.
+* **Matchup**: nearest 0.25° grid cell on the same UTC day, restricted to valid ocean cells (`depth_valid_mask`)
+
+```bash
+uv run python scripts/download/download_argo.py   # -> data/raw/argo/
+uv run python scripts/ml/evaluate_argo.py         # -> evaluation/argo/
+```
+
+Results: 1,950 profiles and 28,027 profile-levels. GLORYS is scored on the same matchups as a reference.
+
+| vs Argo | RMSE (°C) | MAE (°C) | Bias (°C) | Correlation | R² |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Temporal U-Net | 0.975 | 0.622 | +0.216 | 0.991 | 0.981 |
+| GLORYS12V1 | 0.852 | 0.526 | +0.204 | 0.993 | 0.986 |
+
+The model's error against Argo is within about 0.12 °C RMSE of GLORYS's own error against Argo. Most of the remaining error sits in the 50–125 m thermocline, where GLORYS also has its largest error. From 500 m down, the model matches or slightly beats GLORYS. Depth-wise metrics are in `evaluation/argo/argo_metrics_by_depth.csv`, and per-level matchups are in `evaluation/argo/argo_matchups.csv`.
