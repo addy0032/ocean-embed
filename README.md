@@ -6,6 +6,19 @@ Built for Smart India Hackathon (SIH) demonstration.
 
 ---
 
+## Technical Report
+
+**[Read the report (PDF)](paper/main.pdf)**: data, method, evaluation protocol, results and limitations for the models in this repository.
+
+Headline results, all for 5–30°N, 45–105°E, the 2023–2024 test period and one training run per model:
+
+* Temporal U-Net vs GLORYS12: RMSE 0.7229 °C (0.435 °C at 0 m, 1.159 °C at 100 m).
+* It beats a day-of-year climatology (RMSE 1.042 °C) at 12 of 15 depths, but not at 500, 700 and 1000 m. Anomaly correlation against that climatology is 0.714 overall and 0.21–0.33 at 300 m and deeper.
+* Persistence of GLORYS fields (a reference that needs subsurface data) has lower RMSE than the network: 0.156 °C (1 day) and 0.624 °C (7 days).
+* Against 1,950 Argo profiles (Jun–Dec 2023): U-Net RMSE 0.975 °C, GLORYS12 itself 0.852 °C. GLORYS12 assimilates in-situ profiles, so this is a consistency check, not an independent test.
+
+---
+
 ## System Architecture
 
 ```text
